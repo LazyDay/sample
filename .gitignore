@@ -1,0 +1,6 @@
+.idea
+docker/databases/
+.docker-sync
+builds/
+.env
+/vendor/

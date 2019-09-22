@@ -1,0 +1,52 @@
+stages:
+  - deps
+  - deploy
+
+services:
+- docker:dind
+
+deps:php-composer:
+  stage: deps
+  image: covex/php7.1-fpm:1.0
+  script:
+    - cd backend
+    - echo '{"github-oauth":{"github.com":"'"$COMPOSER_GITHUB_TOKEN"'"}}' > ./auth.json
+    - composer install --prefer-dist --no-scripts --no-autoloader --no-interaction --no-dev
+  only:
+  - /^release-.*$/
+  except:
+  - branches
+
+
+deploy_backend:
+  stage: deploy
+  image: docker:latest
+  dependencies:
+  - deps:php-composer
+  script:
+    - cd backend
+    - echo '{"github-oauth":{"github.com":"'"$COMPOSER_GITHUB_TOKEN"'"}}' > ./auth.json
+    - docker login $CI_REGISTRY -u $CI_USERNAME -p $CI_PASSWORD
+    - docker build -t $CI_REGISTRY/backend:$CI_COMMIT_REF_NAME .
+    - docker push $CI_REGISTRY/backend:$CI_COMMIT_REF_NAME
+  only:
+  - /^release-.*$/
+  except:
+  - branches
+
+nginx:
+  stage: deploy
+  image: docker:latest
+  script:
+  - cd nginx
+  - docker login $CI_REGISTRY -u $CI_USERNAME -p $CI_PASSWORD
+  - docker build -t $CI_REGISTRY/nginx:$CI_COMMIT_REF_NAME .
+  - docker push $CI_REGISTRY/nginx:$CI_COMMIT_REF_NAME
+  only:
+  - /^release-.*$/
+  except:
+  - branches
+
+variables:
+  GIT_STRATEGY: clone
+  GIT_SUBMODULE_STRATEGY: none

@@ -1,0 +1,57 @@
+version: '3.1'
+
+services:
+  nginx:
+    build: ./nginx/dev
+    ports:
+    - 8080:8080
+    restart: always
+    depends_on:
+    - frontend
+    - api
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile-dev
+    volumes:
+    - ./frontend:/web
+    working_dir: /web
+    tty: true
+    ports:
+    - 8081:8080
+
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile-dev
+    volumes:
+    - app-sync:/app:nocopy
+    working_dir:  /app
+    environment:
+      DATABASE_URL: mysql://${MYSQL_USER}:${MYSQL_ROOT_PASSWORD}@db:3306/${MYSQL_DATABASE}
+      ENV: ${ENV}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+      JWT_PUBLIC_KEY: ${JWT_PUBLIC_KEY}
+      JWT_PASSPHRASE: ${JWT_PASSPHRASE}
+
+  db:
+    image: mariadb
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    volumes:
+    - ./docker/databases:/var/lib/mysql
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+    - 8082:8080
+
+volumes:
+  app-sync:
+    external: true

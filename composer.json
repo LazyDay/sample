@@ -1,0 +1,12 @@
+{
+    "name": "lazyday/sample",
+    "description": "Sample project template with docker, symfony and vue",
+    "type": "project",
+    "authors": [
+        {
+            "name": "Denis Labutin",
+            "email": "kronolius@mail.com"
+        }
+    ],
+    "require": {}
+}

@@ -1,0 +1,38 @@
+stages:
+- build
+- deploy
+
+services:
+- docker:dind
+
+build_frontend:
+  image: node
+  stage: build
+  script:
+  - echo "build frontend"
+  - npm install
+  - npm run build
+  only:
+  - /^release-.*$/
+  except:
+  - branches
+
+deploy_frontend:
+  image: docker:latest
+  stage: deploy
+  script:
+  - docker login $CI_REGISTRY -u $CI_USERNAME -p $CI_PASSWORD
+  - docker build -t $CI_REGISTRY/frontend:$CI_COMMIT_REF_NAME .
+  - docker push $CI_REGISTRY/frontend:$CI_COMMIT_REF_NAME
+  only:
+  - /^release-.*$/
+  except:
+  - branches
+
+cache:
+  paths:
+  - dist/
+
+variables:
+  GIT_STRATEGY: clone
+  GIT_SUBMODULE_STRATEGY: none

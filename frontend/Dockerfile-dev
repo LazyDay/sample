@@ -1,0 +1,12 @@
+FROM node:9.11.1-alpine
+
+WORKDIR /app
+
+EXPOSE 80
+
+COPY . /app
+
+WORKDIR /app
+RUN npm install
+
+CMD ["npm", "run", "watch"]

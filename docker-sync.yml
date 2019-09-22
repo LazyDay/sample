@@ -1,0 +1,5 @@
+version: '2'
+syncs:
+  app-sync:
+    src: './backend'
+    sync_userid: '33'
