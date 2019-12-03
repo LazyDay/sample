@@ -7,6 +7,12 @@ What include:
 * MySQL
 * Adminer
 
+Use:
+`
+git clone https://github.com/LazyDay/sample $FOLDER_NAME$
+git remote set-url origin $NEW_REPO_URL$
+`
+
 Prepare to develop:
 1. Add envitoment variables to .env
 2. composer install in backend folder
